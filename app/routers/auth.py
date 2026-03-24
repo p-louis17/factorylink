@@ -30,7 +30,7 @@ def register(
     db.add(user)
     db.commit()
 
-    token = create_access_token({"sub": user.user_id, "role": user.role})
+    token = create_access_token({"sub": user.user_id, "role": user.role.value})
 
     response = RedirectResponse(f"/{role}/dashboard", status_code=303)
     response.set_cookie("access_token", token, httponly=True, max_age=86400)
@@ -42,10 +42,19 @@ def login(
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    token = create_access_token({"sub": User.user_id, "role": User.role})
 
-    if password == verify_password(User.password):
-       token = create_access_token({"sub": User.user_id, "role": User.role})
-       response = RedirectResponse(f"/{User.role}/dashboard", status_code=303)
-       response.set_cookie("access_token", token, httponly=True, max_age=86400)
-       return response
+    user = db.query(User).filter(User.email==email).first()
+
+    if not user or not verify_password(password, user.password):
+       raise HTTPException(401, detail="Invalid Credentials")
+    
+    token = create_access_token({"sub": user.user_id, "role": user.role.value})
+    response = RedirectResponse(f"/{user.role.value}/dashboard", status_code=303)
+    response.set_cookie("access_token", token, httponly=True, max_age=86400)
+    return response
+
+@router.get("/logout")
+def logout():
+    response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie("access_token")
+    return response
