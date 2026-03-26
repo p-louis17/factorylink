@@ -78,7 +78,7 @@
         <td><strong>{{ r.material_name }}</strong></td>
         <td>{{ r.quantity }}</td>
         <td>{{ r.unit }}</td>
-        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td><span class="badge badge-{{ r.status.value }}">{{ r.status.value }}</span></td>
         <td>
           {% if r.listing %}
             <strong>{{ r.listing.supplier.company_name }}</strong><br/>
