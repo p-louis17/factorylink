@@ -3,8 +3,8 @@ from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.orm import Session
 from app.models.database import get_db
 from datetime import datetime
-from app.models.Models import User, RoleEnum
-from app.auth_jwt import verify_password, hash_password, create_access_token
+from app.models.Models import User, RoleEnum, Manufacturer, Supplier
+from app.auth_jwt import verify_password, hash_password, create_access_token, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,6 +28,15 @@ def register(
         role=role
     )
     db.add(user)
+    db.commit()
+
+    if role == "supplier":
+        supplier_profile = Supplier(user_id=user.user_id, company_name=name)
+        db.add(supplier_profile)
+    elif role == "manufacturer":
+        manufacturer_profile = Manufacturer(user_id=user.user_id, factory_name=name)
+        db.add(manufacturer_profile)
+
     db.commit()
 
     token = create_access_token({"sub": user.user_id, "role": user.role.value})

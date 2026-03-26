@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}— Supplier Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>Supplier Dashboard</h1>
+    <p class="page-sub">Manage your profile and material listings</p>
+  </div>
+</div>
+
+<div class="dash-grid">
+
+  <div class="card">
+    <h2 class="card-title">My Profile</h2>
+    <form method="POST" action="/supplier/profile">
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" name="company_name" value="{{ supplier.company_name if supplier else '' }}" required/>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" value="{{ supplier.location or '' }}" placeholder="e.g. Kampala, Uganda"/>
+      </div>
+      <div class="form-group">
+        <label>Material Types <span class="hint-text">(comma-separated)</span></label>
+        <input type="text" name="material_types" value="{{ supplier.material_types or '' }}" placeholder="e.g. Coffee, Cotton, Iron Ore"/>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Profile</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">New Listing</h2>
+    <form method="POST" action="/supplier/create_listing">
+      <div class="form-group">
+        <label>Material Name</label>
+        <input type="text" name="material_name" required placeholder="e.g. Raw Coffee Beans"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" step="0.01" name="quantity" required placeholder="500"/>
+        </div>
+        <div class="form-group">
+          <label>Unit</label>
+          <input type="text" name="unit" required placeholder="kg"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Price per Unit (USD)</label>
+        <input type="number" step="0.01" name="price_per_unit" required placeholder="2.50"/>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="2" placeholder="Grade, origin, availability..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Publish Listing</button>
+    </form>
+  </div>
+
+</div>
+
+<div class="card full-w">
+  <h2 class="card-title">My Active Listings</h2>
+  {% if listings %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Material</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Price/Unit</th>
+        <th>Status</th>
+        <th>Listed</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for l in listings %}
+      <tr>
+        <td><strong>{{ l.material_name }}</strong>{% if l.description %}<br/><small class="muted">{{ l.description[:50] }}</small>{% endif %}</td>
+        <td>{{ l.quantity }}</td>
+        <td>{{ l.unit }}</td>
+        <td>${{ "%.2f"|format(l.price_per_unit) }}</td>
+        <td><span class="badge badge-{{ l.status }}">{{ l.status }}</span></td>
+        <td>{{ l.created_at.strftime('%b %d, %Y') }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty">No listings yet. Add your first material above.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

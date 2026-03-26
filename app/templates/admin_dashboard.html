@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}— Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>Admin Dashboard</h1>
+    <p class="page-sub">Monitor and manage the FactoryLink platform</p>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card"><span class="stat-n">{{ users|length }}</span><span class="stat-l">Total Users</span></div>
+  <div class="stat-card"><span class="stat-n">{{ listings|length }}</span><span class="stat-l">Listings</span></div>
+  <div class="stat-card"><span class="stat-n">{{ requests|length }}</span><span class="stat-l">Requests</span></div>
+  <div class="stat-card"><span class="stat-n">{{ requests|selectattr('status', 'equalto', 'matched')|list|length }}</span><span class="stat-l">Matched</span></div>
+</div>
+
+<div class="card full-w">
+  <h2 class="card-title">All Users</h2>
+  <table class="table">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td><span class="badge badge-{{ u.role }}">{{ u.role }}</span></td>
+        <td>{{ u.created_at.strftime('%b %d, %Y') }}</td>
+        <td>
+          {% if u.user_id != user.user_id %}
+          <form method="POST" action="/admin/users/{{ u.user_id }}/delete" style="display:inline">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete user?')">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card full-w">
+  <h2 class="card-title">All Listings</h2>
+  <table class="table">
+    <thead><tr><th>Material</th><th>Supplier</th><th>Quantity</th><th>Price/Unit</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+    {% for l in listings %}
+      <tr>
+        <td>{{ l.material_name }}</td>
+        <td>{{ l.supplier.company_name }}</td>
+        <td>{{ l.quantity }} {{ l.unit }}</td>
+        <td>${{ "%.2f"|format(l.price_per_unit) }}</td>
+        <td><span class="badge badge-{{ l.status }}">{{ l.status }}</span></td>
+        <td>
+          <form method="POST" action="/admin/listings/{{ l.listing_id }}/remove" style="display:inline">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove?')">Remove</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card full-w">
+  <h2 class="card-title">All Requests</h2>
+  <table class="table">
+    <thead><tr><th>Material</th><th>Manufacturer</th><th>Quantity</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for r in requests %}
+      <tr>
+        <td>{{ r.material_name }}</td>
+        <td>{{ r.manufacturer.factory_name }}</td>
+        <td>{{ r.quantity }} {{ r.unit }}</td>
+        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td>{{ r.created_at.strftime('%b %d, %Y') }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

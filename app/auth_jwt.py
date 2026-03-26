@@ -10,7 +10,7 @@ from decouple import config
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = config('ALGORITHM')
-ACCESS_TOKEN_EXPIRE_MINUTES = config('ACCESS_TOKEN_EXPIRE_MINUTES')
+ACCESS_TOKEN_EXPIRE_MINUTES = config('ACCESS_TOKEN_EXPIRE_MINUTES',cast=int)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,6 +30,7 @@ def get_current_user(
         access_token: str = Cookie(default=None),
         db : Session = Depends(get_db) ) -> User:
     payload = jwt.decode(access_token, SECRET_KEY, algorithms=ALGORITHM)
+
     user_id = payload.get("sub")
     user = db.query(User).filter(User.user_id == user_id).first()
     return user

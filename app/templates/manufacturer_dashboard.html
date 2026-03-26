@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}— Manufacturer Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>Manufacturer Dashboard</h1>
+    <p class="page-sub">Find raw materials and manage your requests</p>
+  </div>
+</div>
+
+<div class="dash-grid">
+
+  <div class="card">
+    <h2 class="card-title">Factory Profile</h2>
+    <form method="POST" action="/manufacturer/profile">
+      <div class="form-group">
+        <label>Factory Name</label>
+        <input type="text" name="factory_name" value="{{ manufacturer.factory_name if manufacturer else '' }}" required/>
+      </div>
+      <div class="form-group">
+        <label>Industry</label>
+        <input type="text" name="industry" value="{{ manufacturer.industry or '' }}" placeholder="e.g. Food Processing"/>
+      </div>
+      <div class="form-group">
+        <label>Production Capacity</label>
+        <input type="text" name="production_capacity" value="{{ manufacturer.production_capacity or '' }}" placeholder="e.g. 10 tonnes/day"/>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" value="{{ manufacturer.location or '' }}" placeholder="e.g. Kampala, Uganda"/>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Profile</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">Request a Material</h2>
+    <p class="card-desc">Our system automatically matches your request to available supplier listings.</p>
+    <form method="POST" action="/manufacturer/requests/submit">
+      <div class="form-group">
+        <label>Material Needed</label>
+        <input type="text" name="material_name" required placeholder="e.g. Cotton"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" step="0.01" name="quantity" required placeholder="200"/>
+        </div>
+        <div class="form-group">
+          <label>Unit</label>
+          <input type="text" name="unit" required placeholder="kg"/>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Request →</button>
+    </form>
+  </div>
+
+</div>
+
+<div class="card full-w">
+  <h2 class="card-title">My Material Requests</h2>
+  {% if requests %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Material</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Status</th>
+        <th>Matched Supplier</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for r in requests %}
+      <tr>
+        <td><strong>{{ r.material_name }}</strong></td>
+        <td>{{ r.quantity }}</td>
+        <td>{{ r.unit }}</td>
+        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td>
+          {% if r.listing %}
+            <strong>{{ r.listing.supplier.company_name }}</strong><br/>
+            <small class="muted">{{ r.listing.material_name }} · ${{ "%.2f"|format(r.listing.price_per_unit) }}/{{ r.listing.unit }}</small>
+          {% else %}
+            <span class="muted">Searching...</span>
+          {% endif %}
+        </td>
+        <td>{{ r.created_at.strftime('%b %d, %Y') }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty">No requests yet. Submit your first material request above.</p>
+  {% endif %}
+</div>
+
+<div class="card full-w">
+  <h2 class="card-title">Available Listings</h2>
+  {% if listings %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Material</th>
+        <th>Supplier</th>
+        <th>Location</th>
+        <th>Quantity</th>
+        <th>Price/Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for l in listings %}
+      <tr>
+        <td><strong>{{ l.material_name }}</strong></td>
+        <td>{{ l.supplier.company_name }}</td>
+        <td>{{ l.supplier.location or '—' }}</td>
+        <td>{{ l.quantity }} {{ l.unit }}</td>
+        <td>${{ "%.2f"|format(l.price_per_unit) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty">No active listings available yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
