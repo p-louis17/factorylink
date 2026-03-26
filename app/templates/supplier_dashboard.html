@@ -62,6 +62,42 @@
 </div>
 
 <div class="card full-w">
+  <h2 class="card-title">Matched Requests — Action Required</h2>
+  {% set matched = listings | selectattr('requests') | list %}
+  {% if matched %}
+    <table class="table">
+      <thead>
+        <tr><th>Material</th><th>Manufacturer</th><th>Quantity</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+      {% for l in listings %}
+        {% for r in l.requests %}
+          {% if r.status == 'matched' %}
+          <tr>
+            <td><strong>{{ r.material_name }}</strong></td>
+            <td>{{ r.manufacturer.factory_name }}</td>
+            <td>{{ r.quantity }} {{ r.unit }}</td>
+            <td><span class="badge badge-matched">matched</span></td>
+            <td>
+              <form method="POST" action="/supplier/requests/{{ r.request_id }}/accept" style="display:inline">
+                <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+              </form>
+              <form method="POST" action="/supplier/requests/{{ r.request_id }}/decline" style="display:inline">
+                <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+              </form>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty">No pending matched requests.</p>
+  {% endif %}
+</div>
+
+<div class="card full-w">
   <h2 class="card-title">My Active Listings</h2>
   {% if listings %}
   <table class="table">

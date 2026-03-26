@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Form, Depends
 from fastapi.responses import RedirectResponse
-from app.models.Models import User, Supplier, MaterialListing
+from app.models.Models import User, Supplier, MaterialListing, MaterialRequest, StatusEnum
 from app.auth_jwt import get_current_user
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -68,4 +68,28 @@ def create_listing(
     )
     db.add(listing)
     db.commit()
+    return RedirectResponse(url="/supplier/dashboard", status_code=303)
+
+@router.post("/requests/{request_id}/accept")
+def accept_request(
+    request_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    req = db.query(MaterialRequest).filter(MaterialRequest.request_id == request_id).first()
+    if req:
+        req.status = StatusEnum.in_progress
+        db.commit()
+    return RedirectResponse(url="/supplier/dashboard", status_code=303)
+
+@router.post("/requests/{request_id}/decline")
+def decline_request(
+    request_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    req = db.query(MaterialRequest).filter(MaterialRequest.request_id == request_id).first()
+    if req:
+        req.status = StatusEnum.declined
+        db.commit()
     return RedirectResponse(url="/supplier/dashboard", status_code=303)
