@@ -42,14 +42,27 @@ echo "========================================="
 echo "   ✅ Setup complete!"
 echo "========================================="
 echo ""
-echo "   To run the app:"
-echo ""
-echo "   source myvenv/bin/activate"
-echo "   uvicorn main:app --reload"
-echo ""
-echo "   Then open: http://localhost:8000"
-echo ""
 echo "   Admin login:"
 echo "   Email:    admin@factorylink.com"
 echo "   Password: admin123"
 echo ""
+
+# Ask if they want to start the server now
+read -p "   Start the server now? (y/n): " answer
+if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
+    echo ""
+    echo "→ Starting server..."
+    echo "   Open your browser at: http://localhost:8000"
+    echo "   Press CTRL+C to stop"
+    echo ""
+    source myvenv/bin/activate
+    uvicorn main:app --reload
+else
+    echo ""
+    echo "   To start later, run:"
+    echo "   source myvenv/bin/activate"
+    echo "   uvicorn main:app --reload"
+    echo ""
+    echo "   Then open: http://localhost:8000"
+    echo ""
+fi

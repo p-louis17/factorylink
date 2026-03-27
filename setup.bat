@@ -45,15 +45,26 @@ echo =========================================
 echo    Setup complete!
 echo =========================================
 echo.
-echo    To run the app:
-echo.
-echo    myvenv\Scripts\activate
-echo    uvicorn main:app --reload
-echo.
-echo    Then open: http://localhost:8000
-echo.
 echo    Admin login:
 echo    Email:    admin@factorylink.com
 echo    Password: admin123
 echo.
-pause
+set /p answer="   Start the server now? (y/n): "
+if /i "%answer%"=="y" (
+    echo.
+    echo Starting server...
+    echo Open your browser at: http://localhost:8000
+    echo Press CTRL+C to stop
+    echo.
+    call myvenv\Scripts\activate
+    uvicorn main:app --reload
+) else (
+    echo.
+    echo    To start later, run:
+    echo    myvenv\Scripts\activate
+    echo    uvicorn main:app --reload
+    echo.
+    echo    Then open: http://localhost:8000
+    echo.
+    pause
+)
