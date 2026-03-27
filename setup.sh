@@ -6,18 +6,27 @@ echo "   FactoryLink Setup Script"
 echo "========================================="
 echo ""
 
-# Install uv if not already installed
-if ! command -v uv &> /dev/null; then
-    echo "Installing uv (Python package manager)..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    # Add uv to PATH for this session
-    export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
-    echo "uv installed successfully."
-else
-    echo "uv already installed: $(uv --version)"
+# Check Python is installed
+if ! command -v python3 &> /dev/null; then
+    echo "ERROR: Python 3 is not installed."
+    echo "Please install it from https://www.python.org/downloads/"
+    exit 1
 fi
 
+echo "Found Python: $(python3 --version)"
 echo ""
+
+# Create virtual environment
+echo "Creating virtual environment..."
+python3 -m venv myvenv
+
+# Activate it
+echo "Activating virtual environment..."
+source myvenv/bin/activate
+
+# Install dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt -q
 
 # Create .env file
 echo "Creating .env file..."
@@ -27,11 +36,6 @@ SECRET_KEY=LbfSwTI7LleizG0Q6hkZcC6RpUOeby0h3CaANQ22edS
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 ENVFILE
-
-# Install Python 3.12 and all dependencies automatically
-echo "Installing Python 3.12 and dependencies..."
-echo "(This may take a minute on first run)"
-uv sync
 
 echo ""
 echo "========================================="
@@ -50,11 +54,12 @@ if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
     echo "Open your browser at: http://localhost:8000"
     echo "Press CTRL+C to stop"
     echo ""
-    uv run uvicorn main:app --reload
+    uvicorn main:app --reload
 else
     echo ""
     echo "   To start later, run:"
-    echo "   uv run uvicorn main:app --reload"
+    echo "   source myvenv/bin/activate"
+    echo "   uvicorn main:app --reload"
     echo ""
     echo "   Then open: http://localhost:8000"
     echo ""
