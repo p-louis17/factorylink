@@ -1,35 +1,23 @@
 @echo off
 echo.
 echo =========================================
-echo    FactoryLink — Setup Script
+echo    FactoryLink Setup Script
 echo =========================================
 echo.
 
-REM Check Python is installed
-python --version >nul 2>&1
+REM Install uv if not already installed
+where uv >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ERROR: Python is not installed.
-    echo Please install it from https://www.python.org/downloads/
-    echo Make sure to check "Add Python to PATH" during installation.
-    pause
-    exit /b 1
+    echo Installing uv (Python package manager)...
+    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+    echo uv installed successfully.
+    REM Refresh PATH
+    set PATH=%USERPROFILE%\.cargo\bin;%LOCALAPPDATA%\uv\bin;%PATH%
+) else (
+    echo uv already installed.
 )
 
-echo Found Python:
-python --version
-
-REM Create virtual environment
 echo.
-echo Creating virtual environment...
-python -m venv myvenv
-
-REM Activate it
-echo Activating virtual environment...
-call myvenv\Scripts\activate
-
-REM Install dependencies
-echo Installing dependencies...
-pip install -r requirements.txt -q
 
 REM Create .env file
 echo Creating .env file...
@@ -39,6 +27,11 @@ echo SECRET_KEY=LbfSwTI7LleizG0Q6hkZcC6RpUOeby0h3CaANQ22edS
 echo ALGORITHM=HS256
 echo ACCESS_TOKEN_EXPIRE_MINUTES=60
 ) > .env
+
+REM Install Python 3.12 and all dependencies automatically
+echo Installing Python 3.12 and dependencies...
+echo (This may take a minute on first run)
+uv sync
 
 echo.
 echo =========================================
@@ -56,13 +49,11 @@ if /i "%answer%"=="y" (
     echo Open your browser at: http://localhost:8000
     echo Press CTRL+C to stop
     echo.
-    call myvenv\Scripts\activate
-    uvicorn main:app --reload
+    uv run uvicorn main:app --reload
 ) else (
     echo.
     echo    To start later, run:
-    echo    myvenv\Scripts\activate
-    echo    uvicorn main:app --reload
+    echo    uv run uvicorn main:app --reload
     echo.
     echo    Then open: http://localhost:8000
     echo.
