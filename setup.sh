@@ -31,7 +31,7 @@ pip install -r requirements.txt -q
 # Create .env file
 echo "Creating .env file..."
 cat > .env << 'ENVFILE'
-DATABASE_URL=postgresql://neondb_owner:npg_ARlY7QfNJu3I@ep-fancy-feather-agfppv25-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://neondb_owner:npg_P6ChIG5KzTjd@ep-fancy-feather-agfppv25-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 SECRET_KEY=LbfSwTI7LleizG0Q6hkZcC6RpUOeby0h3CaANQ22edS
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
